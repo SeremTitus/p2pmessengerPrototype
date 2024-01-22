@@ -1,6 +1,22 @@
 import socket
 import threading
 
+def get_local_ip():
+    try:
+        # Create a socket object
+        s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+
+        # Connect to a known address (doesn't send data)
+        s.connect(('10.0.0.1', 1))
+
+        # Get the local IP address from the socket
+        local_ip = s.getsockname()[0]
+
+        return local_ip
+    except socket.error as e:
+        print("Error:", e)
+        return None
+
 def receive_messages(server_socket):
     while True:
         client_socket, client_address = server_socket.accept()
@@ -15,6 +31,7 @@ def send_message(server_ip, server_port, message):
     client_socket.close()
 
 def main():
+    print("Your IP is : " + get_local_ip())
     # Set up the server socket
     server_ip = "0.0.0.0"  # Listen on all available interfaces
     server_port = 12345
