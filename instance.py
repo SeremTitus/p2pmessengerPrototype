@@ -1,5 +1,6 @@
 import socket
 import threading
+import time
 
 def get_local_ip():
     try:
@@ -17,11 +18,29 @@ def get_local_ip():
         print("Error:", e)
         return None
 
-def receive_messages(server_socket):
+receive_ip_online = ""
+def is_online(server_ip, server_port):
+    global receive_ip_online
+    start_time = time.time()
+    while receive_ip_online != server_ip:
+        send_message(server_ip, server_port,"[are_you_online?]")
+        if (time.time() - start_time) > 10:
+            return False
+    receive_ip_online = ""
+    return True
+
+
+def receive_messages(server_socket,server_port):
+    global receive_ip_online
     while True:
         client_socket, client_address = server_socket.accept()
         message = client_socket.recv(1024).decode("utf-8")
-        print(f"Received message from {client_address[0]}: {message}")
+        if message == "[are_you_online?]":
+            send_message(client_address[0], server_port, "[am_online]")
+        elif message == "[am_online]":
+            receive_ip_online = client_address[0]
+        else:        
+            print(f"Received message from {client_address[0]}: {message}")
         client_socket.close()
 
 def send_message(server_ip, server_port, message):
@@ -40,7 +59,7 @@ def main():
     server_socket.listen(5)
 
     # Start the thread to receive messages
-    receive_thread = threading.Thread(target=receive_messages, args=(server_socket,))
+    receive_thread = threading.Thread(target=receive_messages, args=(server_socket,server_port))
     receive_thread.start()
 
     while True:
@@ -48,6 +67,11 @@ def main():
         recipient_ip = input("Enter the IP address of the recipient: ")
         
         if len(recipient_ip) > 0:
+            #check if online
+            if not is_online(recipient_ip, server_port):
+                print(recipient_ip + " is offline. Try later")
+                continue
+
             # Get the message to send
             message = input("Enter your message: ")
 
