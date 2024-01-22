@@ -29,12 +29,18 @@ def main():
     while True:
         # Get the IP address of the recipient
         recipient_ip = input("Enter the IP address of the recipient: ")
+        
+        if len(recipient_ip) > 0:
+            # Get the message to send
+            message = input("Enter your message: ")
 
-        # Get the message to send
-        message = input("Enter your message: ")
-
-        # Send the message
-        send_message(recipient_ip, server_port, message)
+            # Send the message
+            if len(message) > 0:
+                message = "[empty message]"
+            try:
+                send_message(recipient_ip, server_port, message)
+            except:
+                print("failed to send message, check ip")
 
 if __name__ == "__main__":
     main()
