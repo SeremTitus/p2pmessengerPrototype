@@ -76,7 +76,7 @@ def main():
             message = input("Enter your message: ")
 
             # Send the message
-            if len(message) > 0:
+            if len(message) < 0:
                 message = "[empty message]"
             try:
                 send_message(recipient_ip, server_port, message)
